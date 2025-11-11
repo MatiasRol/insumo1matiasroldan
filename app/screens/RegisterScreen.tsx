@@ -17,57 +17,46 @@ import {
   createConfirmPasswordSchema,
 } from "@/lib/schemas/authSchemas";
 
-/**
- * 🧾 Pantalla de Registro
- * Valida nombre, correo, contraseña y confirmación usando Zod.
- */
 export default function RegisterScreen() {
-  const router = useRouter();
+  const router: any = useRouter(); // ✅ corregido
 
-  // Estados de los campos
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  // Estado de errores
+  // ✅ define tipo de errores
   const [errors, setErrors] = useState<{
     name?: string;
     email?: string;
     password?: string;
     confirmPassword?: string;
-  }>({});
+  }>({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-  // Función de envío del formulario
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const handleSubmit = () => {
     try {
-      // Limpia errores previos
       setErrors({});
 
-      // Valida cada campo con los esquemas de Zod
       nameSchema.parse(name);
       emailSchema.parse(email);
       passwordSchema.parse(password);
+      createConfirmPasswordSchema(password).parse(confirmPassword);
 
-      // Confirmación de contraseña dinámica
-      const confirmSchema = createConfirmPasswordSchema(password);
-      confirmSchema.parse(confirmPassword);
-
-      // Si todo es correcto:
       Alert.alert("✅ Registro exitoso", `Bienvenido, ${name}`);
-      // Aquí podrías guardar datos en Firebase o redirigir:
       // router.push("/screens/LoginScreen");
-
     } catch (err: any) {
-      // Recolecta los mensajes de error de Zod
-      const newErrors: any = {};
+      const newErrors: Record<string, string> = {};
       if (err.errors) {
         err.errors.forEach((e: any) => {
           const field = e.path?.[0] || "form";
-          newErrors[field] = e.message;
+          if (field) newErrors[field] = e.message;
         });
-      } else {
-        // Si fue un solo error (por ejemplo, de confirmPassword)
+      } else if (err.message) {
         newErrors.confirmPassword = err.message;
       }
       setErrors(newErrors);
@@ -82,56 +71,51 @@ export default function RegisterScreen() {
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
         <View className="p-6">
           <Text className="text-3xl font-bold text-center mb-8 text-green-600">
             Crear Cuenta
           </Text>
 
-          {/* Campo Nombre */}
           <CustomInput
             label="Nombre completo"
             placeholder="Tu nombre"
             value={name}
             onChangeText={setName}
-            error={errors.name}
+            error={errors.name || ""}
           />
 
-          {/* Campo Email */}
           <CustomInput
             label="Correo electrónico"
             placeholder="ejemplo@mail.com"
             value={email}
             onChangeText={setEmail}
-            error={errors.email}
+            error={errors.email || ""}
           />
 
-          {/* Campo Contraseña */}
           <CustomInput
             label="Contraseña"
             placeholder="********"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            error={errors.password}
+            error={errors.password || ""}
           />
 
-          {/* Campo Confirmar Contraseña */}
           <CustomInput
             label="Confirmar contraseña"
             placeholder="********"
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry
-            error={errors.confirmPassword}
+            error={errors.confirmPassword || ""}
           />
 
-          {/* Botón de registro */}
           <View className="mt-6">
             <Button title="Registrarse" onPress={handleSubmit} />
           </View>
 
-          {/* Ir a login */}
           <View className="mt-6 items-center">
             <Text
               className="text-green-500 underline"
@@ -141,7 +125,6 @@ export default function RegisterScreen() {
             </Text>
           </View>
 
-          {/* Volver al inicio */}
           <View className="mt-4 items-center">
             <Text
               className="text-gray-500 underline"

@@ -1,51 +1,42 @@
+import CustomInput from "@/components/CustomInput";
+import { LoginSchema } from "@/lib/schemas/authSchemas";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  Button,
   Alert,
+  Button,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Text,
+  View,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { LoginSchema } from "@/lib/schemas/authSchemas";
-import CustomInput from "@/components/CustomInput";
 
-/**
- * 🧠 Pantalla de Login
- * Validación con Zod, manejo de errores y simulación de inicio de sesión.
- */
 export default function LoginScreen() {
-  const router = useRouter();
+  const router: any = useRouter(); // ✅ corregido
 
-  // Estados de los campos
+  // ✅ define tipo de errores
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({
+    email: "",
+    password: "",
+  });
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // Estado de errores
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-
-  // Función de envío
   const handleSubmit = () => {
     try {
-      // Limpia errores previos
-      setErrors({});
-
-      // Valida con Zod
+      setErrors({}); // limpia errores
       LoginSchema.parse({ email, password });
 
-      // Si todo pasa, muestra alerta de éxito
       Alert.alert("✅ Inicio de sesión exitoso", `Bienvenido de nuevo, ${email}`);
-      // Aquí podrías redirigir a otra pantalla:
-      // router.push("/(tabs)/home");
-
+      // router.push("/pantallaPrincipal") // ejemplo
     } catch (err: any) {
       if (err.errors) {
-        const newErrors: any = {};
+        const newErrors: Record<string, string> = {};
         err.errors.forEach((e: any) => {
           const field = e.path?.[0];
-          newErrors[field] = e.message;
+          if (field) newErrors[field] = e.message;
         });
         setErrors(newErrors);
       }
@@ -60,37 +51,34 @@ export default function LoginScreen() {
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
         <View className="p-6">
           <Text className="text-3xl font-bold text-center mb-8 text-blue-600">
             Iniciar Sesión
           </Text>
 
-          {/* Campo Email */}
           <CustomInput
             label="Correo electrónico"
             placeholder="ejemplo@mail.com"
             value={email}
             onChangeText={setEmail}
-            error={errors.email}
+            error={errors.email || ""}
           />
 
-          {/* Campo Contraseña */}
           <CustomInput
             label="Contraseña"
             placeholder="********"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            error={errors.password}
+            error={errors.password || ""}
           />
 
-          {/* Botón */}
           <View className="mt-6">
             <Button title="Iniciar sesión" onPress={handleSubmit} />
           </View>
 
-          {/* Navegación a registro */}
           <View className="mt-6 items-center">
             <Text
               className="text-blue-500 underline"
@@ -100,7 +88,6 @@ export default function LoginScreen() {
             </Text>
           </View>
 
-          {/* Volver al inicio */}
           <View className="mt-4 items-center">
             <Text
               className="text-gray-500 underline"
