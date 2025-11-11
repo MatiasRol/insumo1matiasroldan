@@ -4,98 +4,95 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
-  Button,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   Text,
   View,
 } from "react-native";
 
 export default function LoginScreen() {
-  const router: any = useRouter(); // ✅ corregido
-
-  // ✅ define tipo de errores
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({
-    email: "",
-    password: "",
-  });
+  const router: any = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {}
+  );
 
   const handleSubmit = () => {
     try {
-      setErrors({}); // limpia errores
+      setErrors({});
       LoginSchema.parse({ email, password });
-
-      Alert.alert("✅ Inicio de sesión exitoso", `Bienvenido de nuevo, ${email}`);
-      // router.push("/pantallaPrincipal") // ejemplo
+      Alert.alert("✅ Inicio de sesión exitoso", `Bienvenido ${email}`);
     } catch (err: any) {
+      const newErrors: any = {};
       if (err.errors) {
-        const newErrors: Record<string, string> = {};
         err.errors.forEach((e: any) => {
-          const field = e.path?.[0];
-          if (field) newErrors[field] = e.message;
+          newErrors[e.path[0]] = e.message;
         });
-        setErrors(newErrors);
       }
+      setErrors(newErrors);
     }
   };
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-white"
       behavior={Platform.OS === "ios" ? "padding" : undefined}
+      className="flex-1 bg-white"
     >
       <ScrollView
-        contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+        contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View className="p-6">
+        <View className="flex-1 justify-center px-6">
           <Text className="text-3xl font-bold text-center mb-8 text-blue-600">
             Iniciar Sesión
           </Text>
 
           <CustomInput
             label="Correo electrónico"
-            placeholder="ejemplo@mail.com"
+            placeholder="usuario@email.com"
             value={email}
             onChangeText={setEmail}
-            error={errors.email || ""}
+            error={errors.email}
           />
 
           <CustomInput
             label="Contraseña"
             placeholder="********"
+            secureTextEntry
             value={password}
             onChangeText={setPassword}
-            secureTextEntry
-            error={errors.password || ""}
+            error={errors.password}
           />
 
-          <View className="mt-6">
-            <Button title="Iniciar sesión" onPress={handleSubmit} />
-          </View>
+          <Pressable
+            className="bg-blue-600 py-4 rounded-2xl mt-6"
+            onPress={handleSubmit}
+          >
+            <Text className="text-white text-center text-lg font-semibold">
+              Entrar
+            </Text>
+          </Pressable>
 
-          <View className="mt-6 items-center">
-            <Text
-              className="text-blue-500 underline"
-              onPress={() => router.push("/screens/RegisterScreen")}
-            >
+          <Pressable
+            className="mt-6"
+            onPress={() => router.push("/screens/RegisterScreen")}
+          >
+            <Text className="text-center text-blue-500">
               ¿No tienes cuenta? Regístrate
             </Text>
-          </View>
+          </Pressable>
 
-          <View className="mt-4 items-center">
-            <Text
-              className="text-gray-500 underline"
-              onPress={() => router.push("/")}
-            >
-              Volver al inicio
-            </Text>
-          </View>
+          <Pressable
+            className="mt-3"
+            onPress={() => router.push("/")}
+          >
+            <Text className="text-center text-gray-400">Volver al inicio</Text>
+          </Pressable>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

@@ -1,25 +1,13 @@
 import React from "react";
 import { Text, TextInput, View } from "react-native";
 
-/**
- * CustomInput - Componente reutilizable para formularios.
- * 
- * Props:
- * - label (opcional): texto arriba del campo.
- * - placeholder: texto guía dentro del input.
- * - value: valor actual del campo.
- * - onChangeText: función para actualizar el valor.
- * - secureTextEntry (opcional): para contraseñas.
- * - error (opcional): mensaje de error a mostrar en rojo.
- */
-
-type CustomInputProps = {
+type Props = {
   label?: string;
   placeholder?: string;
   value: string;
-  onChangeText: (text: string) => void;
+  onChangeText: (t: string) => void;
   secureTextEntry?: boolean;
-  error?: string | null;
+  error?: string;
 };
 
 export default function CustomInput({
@@ -28,20 +16,14 @@ export default function CustomInput({
   value,
   onChangeText,
   secureTextEntry = false,
-  error = null,
-}: CustomInputProps) {
+  error,
+}: Props) {
   return (
-    <View className="mb-4 w-full">
-      {/* Etiqueta opcional */}
-      {label && (
-        <Text className="text-gray-700 text-base mb-1 font-semibold">
-          {label}
-        </Text>
-      )}
+    <View className="mb-4">
+      {label && <Text className="text-gray-700 mb-1">{label}</Text>}
 
-      {/* Campo de texto */}
       <TextInput
-        className={`border px-3 py-2 rounded-lg text-base bg-white ${
+        className={`border px-4 py-3 rounded-2xl text-base bg-gray-50 ${
           error ? "border-red-500" : "border-gray-300"
         }`}
         placeholder={placeholder}
@@ -51,7 +33,6 @@ export default function CustomInput({
         placeholderTextColor="#9ca3af"
       />
 
-      {/* Mensaje de error */}
       {error ? (
         <Text className="text-red-500 text-sm mt-1">{error}</Text>
       ) : null}

@@ -1,60 +1,46 @@
+import CustomInput from "@/components/CustomInput";
+import {
+  createConfirmPasswordSchema,
+  emailSchema,
+  nameSchema,
+  passwordSchema,
+} from "@/lib/schemas/authSchemas";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  Button,
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
+  Text,
+  View,
 } from "react-native";
-import { useRouter } from "expo-router";
-import CustomInput from "@/components/CustomInput";
-import {
-  nameSchema,
-  emailSchema,
-  passwordSchema,
-  createConfirmPasswordSchema,
-} from "@/lib/schemas/authSchemas";
 
 export default function RegisterScreen() {
-  const router: any = useRouter(); // ✅ corregido
-
-  // ✅ define tipo de errores
-  const [errors, setErrors] = useState<{
-    name?: string;
-    email?: string;
-    password?: string;
-    confirmPassword?: string;
-  }>({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const router: any = useRouter();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [errors, setErrors] = useState<any>({});
 
   const handleSubmit = () => {
     try {
       setErrors({});
-
       nameSchema.parse(name);
       emailSchema.parse(email);
       passwordSchema.parse(password);
       createConfirmPasswordSchema(password).parse(confirmPassword);
 
-      Alert.alert("✅ Registro exitoso", `Bienvenido, ${name}`);
-      // router.push("/screens/LoginScreen");
+      Alert.alert("✅ Registro exitoso", `Bienvenido ${name}`);
+      router.push("/screens/LoginScreen");
     } catch (err: any) {
-      const newErrors: Record<string, string> = {};
+      const newErrors: any = {};
       if (err.errors) {
         err.errors.forEach((e: any) => {
-          const field = e.path?.[0] || "form";
-          if (field) newErrors[field] = e.message;
+          newErrors[e.path[0]] = e.message;
         });
       } else if (err.message) {
         newErrors.confirmPassword = err.message;
@@ -65,15 +51,14 @@ export default function RegisterScreen() {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-white"
       behavior={Platform.OS === "ios" ? "padding" : undefined}
+      className="flex-1 bg-white"
     >
       <ScrollView
-        contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+        contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
       >
-        <View className="p-6">
+        <View className="flex-1 justify-center px-6">
           <Text className="text-3xl font-bold text-center mb-8 text-green-600">
             Crear Cuenta
           </Text>
@@ -83,56 +68,59 @@ export default function RegisterScreen() {
             placeholder="Tu nombre"
             value={name}
             onChangeText={setName}
-            error={errors.name || ""}
+            error={errors.name}
           />
 
           <CustomInput
             label="Correo electrónico"
-            placeholder="ejemplo@mail.com"
+            placeholder="usuario@email.com"
             value={email}
             onChangeText={setEmail}
-            error={errors.email || ""}
+            error={errors.email}
           />
 
           <CustomInput
             label="Contraseña"
             placeholder="********"
+            secureTextEntry
             value={password}
             onChangeText={setPassword}
-            secureTextEntry
-            error={errors.password || ""}
+            error={errors.password}
           />
 
           <CustomInput
             label="Confirmar contraseña"
             placeholder="********"
+            secureTextEntry
             value={confirmPassword}
             onChangeText={setConfirmPassword}
-            secureTextEntry
-            error={errors.confirmPassword || ""}
+            error={errors.confirmPassword}
           />
 
-          <View className="mt-6">
-            <Button title="Registrarse" onPress={handleSubmit} />
-          </View>
+          <Pressable
+            className="bg-green-600 py-4 rounded-2xl mt-6"
+            onPress={handleSubmit}
+          >
+            <Text className="text-white text-center text-lg font-semibold">
+              Registrarse
+            </Text>
+          </Pressable>
 
-          <View className="mt-6 items-center">
-            <Text
-              className="text-green-500 underline"
-              onPress={() => router.push("/screens/LoginScreen")}
-            >
+          <Pressable
+            className="mt-6"
+            onPress={() => router.push("/screens/LoginScreen")}
+          >
+            <Text className="text-center text-green-500">
               ¿Ya tienes cuenta? Inicia sesión
             </Text>
-          </View>
+          </Pressable>
 
-          <View className="mt-4 items-center">
-            <Text
-              className="text-gray-500 underline"
-              onPress={() => router.push("/")}
-            >
-              Volver al inicio
-            </Text>
-          </View>
+          <Pressable
+            className="mt-3"
+            onPress={() => router.push("/")}
+          >
+            <Text className="text-center text-gray-400">Volver al inicio</Text>
+          </Pressable>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
